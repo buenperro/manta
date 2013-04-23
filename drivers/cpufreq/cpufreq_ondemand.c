@@ -195,12 +195,13 @@ static void od_check_cpu(int cpu, unsigned int load_freq)
 		return;
 	}
 
-	/* check for frequency boost */
-	if (od_tuners.boosted && policy->cur < od_tuners.boostfreq) {
-		dbs_freq_increase(policy, od_tuners.boostfreq);
-		od_tuners.boostfreq = policy->cur;
+	/* if the there is a input detected we want to go through this check so 
+	   that the frequency stays locked in boostfreq and doesn't go down */
+	if (od_tuners.boosted) {
+		if (policy->cur < od_tuners.boostfreq)
+			dbs_freq_increase(policy, od_tuners.boostfreq);
 		return;
-	}
+	} 
 
 	/* Check for frequency decrease */
 	/* if we cannot reduce the frequency anymore, break out early */
@@ -216,12 +217,8 @@ static void od_check_cpu(int cpu, unsigned int load_freq)
 			policy->cur) {
 		unsigned int freq_next;
 		freq_next = load_freq / (od_tuners.up_threshold -
-				od_tuners.down_differential);
+				od_tuners.down_differential * 2);
 
-		if (od_tuners.boosted &&
-				freq_next < od_tuners.boostfreq) {
-			freq_next = od_tuners.boostfreq;
-		}
 		/* No longer fully busy, reset rate_mult */
 		dbs_info->rate_mult = 1;
 
