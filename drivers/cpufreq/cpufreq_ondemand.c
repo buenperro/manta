@@ -36,9 +36,10 @@
 #define MICRO_FREQUENCY_MIN_SAMPLE_RATE		(10000)
 #define MIN_FREQUENCY_UP_THRESHOLD		(11)
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
-#define DEFAULT_FREQ_BOOST_TIME      (500000)
+/* 1 second */
+#define DEFAULT_FREQ_BOOST_TIME      (1000)
 
-unsigned int freq_boosted_time;
+static u64 freq_boosted_time;
 
 static struct dbs_data od_dbs_data;
 static DEFINE_PER_CPU(struct od_cpu_dbs_info_s, od_cpu_dbs_info);
@@ -54,7 +55,7 @@ static struct od_dbs_tuners od_tuners = {
 	.ignore_nice = 0,
 	.powersave_bias = 0,
 	.freq_boost_time = DEFAULT_FREQ_BOOST_TIME,
-	.boostfreq = 700000,
+	.boostfreq = 1000000,
 };
 
 static void ondemand_powersave_bias_init_cpu(int cpu)
@@ -177,12 +178,13 @@ static void od_check_cpu(int cpu, unsigned int load_freq)
 
 	dbs_info->freq_lo = 0;
 
-	/* Only core0 controls the boost */
-	if (od_tuners.boosted && policy->cpu == 0) {
-		if (ktime_to_us(ktime_get()) - freq_boosted_time >=
-					od_tuners.freq_boost_time) {
+	/* we want cpu0 to be the only core blocked for freq changes while
+	   we are touching the screen for UI interaction */
+	if (od_tuners.boosted && policy->cpu == 0) 
+	{
+		if (ktime_to_ms(ktime_get()) - freq_boosted_time >= 
+					od_tuners.freq_boost_time)
 			od_tuners.boosted = 0;
-		}
 	}
 
 	/* Check for frequency increase */
@@ -362,7 +364,7 @@ static ssize_t store_boostpulse(struct kobject *kobj, struct attribute *attr,
 		return ret;
 
 	od_tuners.boosted = 1;
-	freq_boosted_time = ktime_to_us(ktime_get());
+	freq_boosted_time = ktime_to_ms(ktime_get());
 	return count;
 }
 
