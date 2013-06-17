@@ -23,7 +23,7 @@
 #include <mach/asv-exynos.h>
 #include <mach/exynos5_bus.h>
 
-#define CPUFREQ_LEVEL_END	(L15 + 1)
+#define CPUFREQ_LEVEL_END	(L6 + 1)
 
 static int max_support_idx;
 static int min_support_idx = (CPUFREQ_LEVEL_END - 1);
@@ -44,41 +44,23 @@ static unsigned int exynos5250_volt_table[CPUFREQ_LEVEL_END];
 
 static struct cpufreq_frequency_table exynos5250_freq_table[] = {
 	{L0, 1700 * 1000},
-	{L1, 1600 * 1000},
-	{L2, 1500 * 1000},
-	{L3, 1400 * 1000},
-	{L4, 1300 * 1000},
-	{L5, 1200 * 1000},
-	{L6, 1100 * 1000},
-	{L7, 1000 * 1000},
-	{L8, 900 * 1000},
-	{L9, 800 * 1000},
-	{L10, 700 * 1000},
-	{L11, 600 * 1000},
-	{L12, 500 * 1000},
-	{L13, 400 * 1000},
-	{L14, 300 * 1000},
-	{L15, 200 * 1000},
+	{L1, 1500 * 1000},
+	{L2, 1200 * 1000},
+	{L3, 1000 * 1000},
+	{L4, 700 * 1000},
+	{L5, 500 * 1000},
+	{L6, 200 * 1000},
 	{0, CPUFREQ_TABLE_END},
 };
 
 /* Minimum memory throughput in megabytes per second */
 static int exynos5250_bus_table[CPUFREQ_LEVEL_END] = {
 	800000, /* 1.7 GHz */
-	800000, /* 1.6 GHz */
 	800000, /* 1.5 GHz */
-	800000, /* 1.4 GHz */
-	667000, /* 1.3 GHz */
 	667000, /* 1.2 GHz */
-	667000, /* 1.1 GHz */
 	667000, /* 1.0 GHz */
-	400000, /* 900 MHz */
-	400000,  /* 800 MHz */
 	160000,  /* 700 MHz */
-	160000,  /* 600 MHz */
 	160000,  /* 500 MHz */
-	0,  /* 400 MHz */
-	0,  /* 300 MHz */
 	0,    /* 200 MHz */
 };
 
@@ -158,9 +140,9 @@ int __init exynos5250_cpufreq_init(struct exynos_dvfs_info *info)
 
 	info->mpll_freq_khz = rate;
 	/* 1000Mhz */
-	info->pm_lock_idx = L7;
-	/* 800Mhz */
-	info->pll_safe_idx = L9;
+	info->pm_lock_idx = L3;
+	/* 700Mhz */
+	info->pll_safe_idx = L4;
 	info->max_support_idx = max_support_idx;
 	info->min_support_idx = min_support_idx;
 	info->cpu_clk = cpu_clk;
