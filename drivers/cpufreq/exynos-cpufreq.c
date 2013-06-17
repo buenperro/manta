@@ -215,6 +215,9 @@ static int exynos_target(struct cpufreq_policy *policy,
 
 	new_freq = freq_table[index].frequency;
 
+	if (new_freq == policy->cur)
+		goto out;
+
 	exynos_cpufreq_scale(new_freq, freqs.old);
 
 out:
