@@ -178,9 +178,9 @@ static void od_check_cpu(int cpu, unsigned int load_freq)
 
 	dbs_info->freq_lo = 0;
 
-	/* we want cpu0 to be the only core blocked for freq changes while
-	   we are touching the screen for UI interaction */
-	if (od_tuners.boosted && policy->cpu == 0) 
+	/* lets check if 1s has passed or not since the last
+	   boosted time */
+	if (od_tuners.boosted) 
 	{
 		if (ktime_to_ms(ktime_get()) - freq_boosted_time >= 
 					od_tuners.freq_boost_time)
@@ -198,8 +198,10 @@ static void od_check_cpu(int cpu, unsigned int load_freq)
 	}
 
 	/* if the there is a input detected we want to go through this check so 
-	   that the frequency stays locked in boostfreq and doesn't go down */
-	if (od_tuners.boosted) {
+	   that the frequency stays >= boostfreq and doesn't go down. This arch
+	   cpus are synchronous, so no need to check for policy->cpu == 0 */
+	if (od_tuners.boosted) 
+	{
 		if (policy->cur < od_tuners.boostfreq)
 			dbs_freq_increase(policy, od_tuners.boostfreq);
 		return;
